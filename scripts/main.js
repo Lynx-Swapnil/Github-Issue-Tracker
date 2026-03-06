@@ -135,11 +135,11 @@ function createIssueCard(issue) {
     if (isOpen) {
         borderColor = '#10b981'; // Green
         iconBgColor = '#f0fdf4'; // Light green
-        iconHtml = `<img src="assets/open-status.png" alt="Open" class="w-5 h-5" />`;
+        iconHtml = `<img src="assets/Open-Status.png" alt="Open" class="w-5 h-5" />`;
     } else if (isClosed) {
         borderColor = '#a855f7'; // Purple
         iconBgColor = '#faf5ff'; // Light purple
-        iconHtml = `<img src="assets/closed-status.png" alt="Closed" class="w-5 h-5" />`;
+        iconHtml = `<img src="assets/Closed-Status.png" alt="Closed" class="w-5 h-5" />`;
     } else {
         borderColor = priorityColors.border;
         iconBgColor = priorityColors.bg;
