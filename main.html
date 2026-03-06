@@ -79,7 +79,7 @@
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-4">
             <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background-color: #e9d5ff;">
-              <i class="fa-solid fa-circle-exclamation text-2xl" style="color: #7c3aed;"></i>
+              <img src="assets/Aperture.png" alt="">
             </div>
             <div>
               <h2 id="issueCount" class="text-2xl font-bold text-gray-800">0 Issues</h2>
@@ -99,11 +99,35 @@
         </div>
       </div>
 
+      <!-- Loading Spinner -->
+      <div id="loadingSpinner" class="hidden">
+        <div class="flex justify-center items-center py-12">
+          <div class="animate-spin rounded-full h-12 w-12 border-b-2" style="border-color: #7c3aed;"></div>
+        </div>
+      </div>
+
       <!-- Issues Grid -->
       <div id="issuesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
         <!-- Issues will be dynamically loaded here -->
       </div>
     </main>
+
+    <!-- Issue Details Modal -->
+    <div id="issueModal" class="hidden" onclick="closeModalOnOutsideClick(event)">
+      <div class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+          <div class="sticky top-0 bg-white border-b border-gray-200 p-6 flex justify-between items-center">
+            <h2 class="text-2xl font-bold text-gray-800">Issue Details</h2>
+            <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700">
+              <i class="fa-solid fa-times text-2xl"></i>
+            </button>
+          </div>
+          <div id="modalContent" class="p-6">
+            <!-- Modal content will be loaded here -->
+          </div>
+        </div>
+      </div>
+    </div>
 
     <script src="scripts/main.js"></script>
   </body>

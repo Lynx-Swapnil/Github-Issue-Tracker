@@ -4,9 +4,22 @@ console.log('connected');
 const btnAll = document.getElementById('btnAll');
 const btnOpen = document.getElementById('btnOpen');
 const btnClosed = document.getElementById('btnClosed');
+const searchInput = document.getElementById('searchIssues');
 
 const filterButtons = [btnAll, btnOpen, btnClosed];
 let allIssues = [];
+let currentFilter = 'all';
+
+// Loading spinner functions
+function showLoading() {
+    document.getElementById('loadingSpinner').classList.remove('hidden');
+    document.getElementById('issuesGrid').classList.add('hidden');
+}
+
+function hideLoading() {
+    document.getElementById('loadingSpinner').classList.add('hidden');
+    document.getElementById('issuesGrid').classList.remove('hidden');
+}
 
 // Function to set active button
 function setActiveButton(activeBtn) {
@@ -27,21 +40,68 @@ function setActiveButton(activeBtn) {
 
 // Add click event listeners
 btnAll.addEventListener('click', () => {
+    currentFilter = 'all';
     setActiveButton(btnAll);
     renderIssues(allIssues);
 });
 
 btnOpen.addEventListener('click', () => {
+    currentFilter = 'open';
     setActiveButton(btnOpen);
     const openIssues = allIssues.filter(issue => issue.status === 'open');
     renderIssues(openIssues);
 });
 
 btnClosed.addEventListener('click', () => {
+    currentFilter = 'closed';
     setActiveButton(btnClosed);
     const closedIssues = allIssues.filter(issue => issue.status === 'closed');
     renderIssues(closedIssues);
 });
+
+// Search functionality
+let searchTimeout;
+searchInput.addEventListener('input', (e) => {
+    clearTimeout(searchTimeout);
+    const query = e.target.value.trim();
+    
+    if (query.length === 0) {
+        // If search is empty, show filtered results based on current filter
+        if (currentFilter === 'all') renderIssues(allIssues);
+        else if (currentFilter === 'open') renderIssues(allIssues.filter(i => i.status === 'open'));
+        else if (currentFilter === 'closed') renderIssues(allIssues.filter(i => i.status === 'closed'));
+        return;
+    }
+    
+    searchTimeout = setTimeout(async () => {
+        await searchIssues(query);
+    }, 500);
+});
+
+// Search issues from API
+async function searchIssues(query) {
+    try {
+        showLoading();
+        const response = await fetch(`https://phi-lab-server.vercel.app/api/v1/lab/issues/search?q=${encodeURIComponent(query)}`);
+        const data = await response.json();
+        const searchResults = data.data || data;
+        
+        // Apply current filter to search results
+        let filteredResults = searchResults;
+        if (currentFilter === 'open') {
+            filteredResults = searchResults.filter(issue => issue.status === 'open');
+        } else if (currentFilter === 'closed') {
+            filteredResults = searchResults.filter(issue => issue.status === 'closed');
+        }
+        
+        renderIssues(filteredResults);
+        hideLoading();
+    } catch (error) {
+        console.error('Error searching issues:', error);
+        hideLoading();
+        document.getElementById('issuesGrid').innerHTML = '<p class="col-span-full text-center text-red-500 py-8">Error searching issues</p>';
+    }
+}
 
 // Get priority color
 function getPriorityColor(priority) {
@@ -66,18 +126,37 @@ function getTagColor(tag) {
 // Create issue card
 function createIssueCard(issue) {
     const priorityColors = getPriorityColor(issue.priority);
+    const isOpen = issue.status === 'open';
+    const isClosed = issue.status === 'closed';
+    
+    // Determine border color and icon
+    let borderColor, iconBgColor, iconHtml;
+    
+    if (isOpen) {
+        borderColor = '#10b981'; // Green
+        iconBgColor = '#f0fdf4'; // Light green
+        iconHtml = `<img src="assets/open-status.png" alt="Open" class="w-5 h-5" />`;
+    } else if (isClosed) {
+        borderColor = '#a855f7'; // Purple
+        iconBgColor = '#faf5ff'; // Light purple
+        iconHtml = `<img src="assets/closed-status.png" alt="Closed" class="w-5 h-5" />`;
+    } else {
+        borderColor = priorityColors.border;
+        iconBgColor = priorityColors.bg;
+        iconHtml = `<i class="fa-solid fa-gear" style="color: ${priorityColors.border};"></i>`;
+    }
     
     return `
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow cursor-pointer" onclick="openIssueModal(${issue.id})">
             <!-- Top colored border -->
-            <div class="h-1" style="background-color: ${priorityColors.border};"></div>
+            <div class="h-1" style="background-color: ${borderColor};"></div>
             
             <!-- Card content -->
             <div class="p-4">
                 <!-- Header with icon and priority -->
                 <div class="flex items-start justify-between mb-3">
-                    <div class="w-8 h-8 rounded-full flex items-center justify-center" style="background-color: ${priorityColors.bg};">
-                        <i class="fa-solid fa-gear" style="color: ${priorityColors.border};"></i>
+                    <div class="w-8 h-8 rounded-full flex items-center justify-center" style="background-color: ${iconBgColor};">
+                        ${iconHtml}
                     </div>
                     <span class="px-2 py-1 text-xs font-semibold rounded" style="background-color: ${priorityColors.bg}; color: ${priorityColors.text};">
                         ${issue.priority?.toUpperCase() || 'LOW'}
@@ -92,18 +171,22 @@ function createIssueCard(issue) {
                 
                 <!-- Tags -->
                 <div class="flex flex-wrap gap-2 mb-3">
-                    ${issue.tags?.map(tag => {
+                    ${issue.labels?.map(tag => {
                         const tagColor = getTagColor(tag);
                         return `<span class="px-2 py-1 text-xs font-medium rounded border" style="background-color: ${tagColor.bg}; color: ${tagColor.text}; border-color: ${tagColor.border};">
                             <i class="fa-solid ${tag.toLowerCase() === 'bug' ? 'fa-bug' : tag.toLowerCase() === 'enhancement' ? 'fa-sparkles' : 'fa-hand'}"></i>
                             ${tag.toUpperCase()}
                         </span>`;
                     }).join('') || ''}
+                    ${issue.level ? `<span class="px-2 py-1 text-xs font-medium rounded-full border" style="background-color: #ede9fe; color: #7c3aed; border-color: #c4b5fd;">
+                        <i class="fa-solid fa-layer-group"></i>
+                        ${issue.level.toUpperCase()}
+                    </span>` : ''}
                 </div>
                 
                 <!-- Footer -->
                 <div class="flex items-center justify-between text-xs text-gray-500 pt-3 border-t border-gray-100">
-                    <span>#${issue.id} by ${issue.createdBy || 'Unknown'}</span>
+                    <span>#${issue.id} by ${issue.author || 'Unknown'}</span>
                     <span>${new Date(issue.createdAt).toLocaleDateString()}</span>
                 </div>
             </div>
@@ -129,16 +212,134 @@ function renderIssues(issues) {
     issuesGrid.innerHTML = issues.map(issue => createIssueCard(issue)).join('');
 }
 
+// Modal functions
+function openIssueModal(issueId) {
+    fetchIssueDetails(issueId);
+    document.getElementById('issueModal').classList.remove('hidden');
+}
+
+function closeModal() {
+    document.getElementById('issueModal').classList.add('hidden');
+}
+
+// Close modal when clicking outside
+function closeModalOnOutsideClick(event) {
+    // Check if the click is on the outer modal div or its immediate flex container child
+    if (event.target.id === 'issueModal' || event.target.classList.contains('fixed')) {
+        closeModal();
+    }
+}
+
+// Close modal on ESC key press
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        const modal = document.getElementById('issueModal');
+        if (!modal.classList.contains('hidden')) {
+            closeModal();
+        }
+    }
+});
+
+// Fetch single issue details
+async function fetchIssueDetails(issueId) {
+    try {
+        const modalContent = document.getElementById('modalContent');
+        modalContent.innerHTML = '<div class="flex justify-center py-8"><div class="animate-spin rounded-full h-12 w-12 border-b-2" style="border-color: #7c3aed;"></div></div>';
+        
+        const response = await fetch(`https://phi-lab-server.vercel.app/api/v1/lab/issue/${issueId}`);
+        const data = await response.json();
+        const issue = data.data || data;
+        
+        const priorityColors = getPriorityColor(issue.priority);
+        const statusColor = issue.status === 'open' ? 'bg-green-100 text-green-800' : 'bg-purple-100 text-purple-800';
+        
+        modalContent.innerHTML = `
+            <div class="space-y-6">
+                <!-- Title -->
+                <div>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-2">${issue.title}</h3>
+                    <div class="flex gap-2 flex-wrap">
+                        <span class="px-3 py-1 text-sm font-semibold rounded ${statusColor}">
+                            ${issue.status?.toUpperCase()}
+                        </span>
+                        <span class="px-3 py-1 text-sm font-semibold rounded" style="background-color: ${priorityColors.bg}; color: ${priorityColors.text};">
+                            ${issue.priority?.toUpperCase() || 'LOW'} PRIORITY
+                        </span>
+                    </div>
+                </div>
+                
+                <!-- Description -->
+                <div>
+                    <h4 class="font-semibold text-gray-700 mb-2">Description</h4>
+                    <p class="text-gray-600">${issue.description}</p>
+                </div>
+                
+                <!-- Labels -->
+                ${issue.labels && issue.labels.length > 0 ? `
+                <div>
+                    <h4 class="font-semibold text-gray-700 mb-2">Labels</h4>
+                    <div class="flex flex-wrap gap-2">
+                        ${issue.labels.map(label => {
+                            const tagColor = getTagColor(label);
+                            return `<span class="px-3 py-1 text-sm font-medium rounded border" style="background-color: ${tagColor.bg}; color: ${tagColor.text}; border-color: ${tagColor.border};">
+                                <i class="fa-solid ${label.toLowerCase() === 'bug' ? 'fa-bug' : label.toLowerCase() === 'enhancement' ? 'fa-sparkles' : 'fa-hand'}"></i>
+                                ${label.toUpperCase()}
+                            </span>`;
+                        }).join('')}
+                    </div>
+                </div>
+                ` : ''}
+                
+                <!-- Details Grid -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <h4 class="font-semibold text-gray-700 mb-1">Author</h4>
+                        <p class="text-gray-600">${issue.author || 'Unknown'}</p>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-700 mb-1">Assignee</h4>
+                        <p class="text-gray-600">${issue.assignee || 'Unassigned'}</p>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-700 mb-1">Created At</h4>
+                        <p class="text-gray-600">${new Date(issue.createdAt).toLocaleString()}</p>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-700 mb-1">Updated At</h4>
+                        <p class="text-gray-600">${new Date(issue.updatedAt).toLocaleString()}</p>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-700 mb-1">Issue ID</h4>
+                        <p class="text-gray-600">#${issue.id}</p>
+                    </div>
+                    ${issue.level ? `
+                    <div>
+                        <h4 class="font-semibold text-gray-700 mb-1">Level</h4>
+                        <p class="text-gray-600">${issue.level.toUpperCase()}</p>
+                    </div>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+    } catch (error) {
+        console.error('Error fetching issue details:', error);
+        document.getElementById('modalContent').innerHTML = '<p class="text-center text-red-500 py-8">Error loading issue details</p>';
+    }
+}
+
 // Fetch issues from API
 async function fetchIssues() {
     try {
+        showLoading();
         const response = await fetch('https://phi-lab-server.vercel.app/api/v1/lab/issues');
         const data = await response.json();
         allIssues = data.data || data;
         renderIssues(allIssues);
+        hideLoading();
         console.log('Issues loaded:', allIssues.length);
     } catch (error) {
         console.error('Error fetching issues:', error);
+        hideLoading();
         document.getElementById('issuesGrid').innerHTML = '<p class="col-span-full text-center text-red-500 py-8">Error loading issues</p>';
     }
 }
