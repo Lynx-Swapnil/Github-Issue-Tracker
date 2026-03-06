@@ -29,7 +29,32 @@
 
     <link rel="stylesheet" href="styles/style.css" />
   </head>
-  <body>
-    <h1>hello</h1>
+  <body class="bg-gray-50">
+    <header class="bg-white shadow-sm border-b border-gray-200 px-6">
+      <div class="navbar px-6">
+        <!-- Left: GitHub Logo and Title -->
+        <div class="flex-1 flex items-center gap-3">
+          <img src="assets/github-logo.png" alt="GitHub" class="w-8 h-8" />
+          <span class="text-xl font-semibold text-gray-800">GitHub Issues Tracker</span>
+        </div>
+        
+        <!-- Right: Search and New Issue Button -->
+        <div class="flex-none flex items-center gap-3">
+          <div class="relative">
+            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 z-10 pointer-events-none"></i>
+            <input
+              type="text"
+              placeholder="Search issues..."
+              class="input input-bordered pl-10 w-64"
+              id="searchIssues"
+            />
+          </div>
+          <button class="btn text-white" style="background-color: #7c3aed">
+            <i class="fa-solid fa-plus"></i>
+            New Issue
+          </button>
+        </div>
+      </div>
+    </header>
   </body>
 </html>
