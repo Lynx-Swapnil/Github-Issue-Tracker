@@ -82,7 +82,7 @@
               <i class="fa-solid fa-circle-exclamation text-2xl" style="color: #7c3aed;"></i>
             </div>
             <div>
-              <h2 class="text-2xl font-bold text-gray-800">50 Issues</h2>
+              <h2 id="issueCount" class="text-2xl font-bold text-gray-800">0 Issues</h2>
               <p class="text-gray-500 text-sm">Track and manage your project issues</p>
             </div>
           </div>
@@ -97,6 +97,11 @@
             </div>
           </div>
         </div>
+      </div>
+
+      <!-- Issues Grid -->
+      <div id="issuesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+        <!-- Issues will be dynamically loaded here -->
       </div>
     </main>
 
