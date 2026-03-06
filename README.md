@@ -1,129 +1,55 @@
-# 🌟 Welcome To (সহজ সরল সিম্পল) Assignment - 5
+### 1️⃣ What is the difference between var, let, and const?
 
-# **📅 Deadline For 60 marks:** 9th March, 2026 (11:59 pm ⏱️)  
-#  📅 No Deadline For 50 marks  
-# **📅 Deadline For 30 marks:** Any time after 9th March.
+These are three ways to declare variables in JavaScript, but they behave differently:
 
----
+**var** is the old way of declaring variables. It has function scope (or global scope), meaning it's accessible throughout the entire function where it's declared. It also gets "hoisted" to the top, so you can reference it before declaration (though it'll be undefined). You can reassign and redeclare it.
 
-# Assignment-05: GitHub Issues Tracker
+**let** is the modern way introduced in ES6. It has block scope, meaning it only exists within the curly braces `{}` where it's declared (like inside an if statement or loop). You can reassign its value, but you can't redeclare it in the same scope. It's not hoisted in a usable way.
 
+**const** is also block-scoped like let, but once you assign a value to it, you cannot reassign it. However, if it holds an object or array, you can still modify the contents of that object/array—you just can't reassign the variable itself to point to something else. Use const by default unless you know the value needs to change.
 
-### **API Endpoints:**
-###  **All Issues:** 
-  - https://phi-lab-server.vercel.app/api/v1/lab/issues 
+### 2️⃣ What is the spread operator (...)?
 
+The spread operator `...` takes something iterable (like an array or object) and "spreads out" its elements or properties.
 
-###  **Single Issue:**
-   - https://phi-lab-server.vercel.app/api/v1/lab/issue/{id}
+For arrays, it unpacks all elements. For example, if you have `arr1 = [1, 2, 3]` and you do `arr2 = [...arr1, 4, 5]`, you get `[1, 2, 3, 4, 5]`. It's great for copying arrays or combining them without modifying the originals.
 
-   - Example: https://phi-lab-server.vercel.app/api/v1/lab/issue/33
+For objects, it spreads out all properties. You can use it to clone objects or merge them: `{...obj1, ...obj2}`. If properties overlap, the later ones overwrite the earlier ones.
 
+It's also useful in function calls to pass array elements as individual arguments: `Math.max(...numbers)`.
 
-###  **Search Issue:** https://phi-lab-server.vercel.app/api/v1/lab/issues/search?q={searchText}
+### 3️⃣ What is the difference between map(), filter(), and forEach()?
 
-   - Example:  https://phi-lab-server.vercel.app/api/v1/lab/issues/search?q=notifications
+These are all array methods that loop through elements, but they serve different purposes:
 
+**forEach()** simply executes a function for each element. It doesn't return anything (returns undefined). Use it when you need to do something with each item but don't need a new array. It's like a basic loop replacement.
 
----
+**map()** transforms each element and returns a new array with the transformed values. If you have an array of numbers and want to double them, map returns a new array with all the doubled values. The original array stays unchanged. Use it when you need to transform data.
 
-## 📝 Main Requirements
+**filter()** tests each element with a condition and returns a new array containing only the elements that pass the test. If you want only the even numbers from an array, filter returns a new array with just those. Use it when you need to select certain items based on criteria.
 
-## 🎨 Design Part
+Key difference: forEach returns nothing, map returns a transformed array, filter returns a filtered array.
 
-## Login Page
-- Create a login page containing a logo, title, and sub-title
-- Below that, there will be 2 inputs, a sign-in button, and a demo credential to sign in. Follow the Figma for this page 
-- Styled as per Figma
+### 4️⃣ What is an arrow function?
 
-## Main Page: 
+An arrow function is a shorter syntax for writing functions, introduced in ES6. Instead of writing `function(x) { return x * 2; }`, you write `(x) => x * 2`.
 
-### Navbar: 
+The syntax is: parameters in parentheses, then `=>`, then the function body. If there's only one parameter, you can skip the parentheses. If the body is a single expression, you can skip the curly braces and the return keyword—it returns automatically.
 
-- Navbar with website logo/name on the left
-- Search input and button on the right
+But arrow functions have an important behavioral difference: they don't have their own `this` context. They inherit `this` from their surrounding scope. This makes them great for callbacks and array methods, but not ideal for object methods or constructors where you need `this` to refer to the object itself.
 
-### Tab Section like Figma: 
+They also can't be used as constructors and don't have an `arguments` object.
 
-- 3 tab ( All, Open, Closed) at the top of this section.(**All**, **Open**, **Closed**)
+### 5️⃣ What are template literals?
 
-- Below the tab, there will be an icon, the issue count, some text on the left, and an open and closed marker on the right
+Template literals are a way to write strings using backticks `` ` `` instead of quotes. They make strings much more powerful and readable.
 
-- Responsiveness: The website should be responsive for mobile devices. It is totally up to you. 
+The main feature is interpolation: you can embed variables or expressions directly in the string using `${expression}`. Instead of `"Hello " + name + "!"`, you write `` `Hello ${name}!` ``. The expression inside `${}` gets evaluated and converted to a string.
 
+They also support multi-line strings naturally. You can just hit Enter and keep typing, no need for `\n` or string concatenation across lines.
 
---- 
+You can even use expressions and function calls inside: `` `Total: ${price * quantity}` `` or `` `User: ${getUsername()}` ``.
 
-
-## ⚙️ Functionalities
-- In login page, there will be default admin credentials (username, password). You need to sign in using these credentials.
-
-- Load all issues and display as per Figma
-
-- On clicking on an open or closed tab, it will load the issues data of the related tab and show it in a display-like card in a 4-column layout like Figma. By default, it will show all data 
-
-- Each card shows:
-  - Title
-  - Description
-  - Status
-  - Category
-  - Author
-  - Priority
-  - Label
-  - CreatedAt
-- Clicking on a tree name in a card will open a modal and show all the information about that Issue. 
-
-### 🚀 Challenges
-
-
-- Show the card Top border based on their category(open, closed), open card will have Green Boder, closed card will have a purple border on top. 
-
-- Loading spinner on data load
-
-- Show active button on changing category names
-
-- Implement Search Functionality and 8 meaningful github commit.  
-
-- Create a readme file and answer this question on your own. Don’t copy-paste from Google or any AI chatbot. 
-    - 1️⃣ What is the difference between var, let, and const?
-    - 2️⃣ What is the spread operator (...)?
-    - 3️⃣ What is the difference between map(), filter(), and forEach()?
-    - 4️⃣ What is an arrow function?
-    - 5️⃣ What are template literals?
-
+This makes code cleaner and easier to read, especially when building HTML strings or complex messages.
 
 ---
-
-## 🛠️ Technology Stack
-
-- **HTML**
-- **CSS** (Vanilla/Tailwind/DaisyUI)
-- **JavaScript** (Vanilla)
-
----
-
-## 🔑 Demo Credentials
-
-```text
-Username: admin
-Password: admin123
-```
-
-
----
-
-### Optional: 
- - No need to show status: Open, Closed styles On modals. 
- - No Need to show icon on labels 
- - No need to apply styles on Priority 
---- 
-
-
-## 📤 What to submit
-
-- **GitHub Repository Link:**
-- **Live Site Link:**
-
----
-
-
