@@ -174,7 +174,7 @@ function createIssueCard(issue) {
                     ${issue.labels?.map(tag => {
                         const tagColor = getTagColor(tag);
                         return `<span class="px-2 py-1 text-xs font-medium rounded border" style="background-color: ${tagColor.bg}; color: ${tagColor.text}; border-color: ${tagColor.border};">
-                            <i class="fa-solid ${tag.toLowerCase() === 'bug' ? 'fa-bug' : tag.toLowerCase() === 'enhancement' ? 'fa-sparkles' : 'fa-hand'}"></i>
+                            <i class="fa-solid ${tag.toLowerCase() === 'bug' ? 'fa-bug' : tag.toLowerCase() === 'enhancement' ? 'fa-lightbulb' : 'fa-hand'}"></i>
                             ${tag.toUpperCase()}
                         </span>`;
                     }).join('') || ''}
@@ -215,30 +215,12 @@ function renderIssues(issues) {
 // Modal functions
 function openIssueModal(issueId) {
     fetchIssueDetails(issueId);
-    document.getElementById('issueModal').classList.remove('hidden');
+    document.getElementById('issueModal').showModal();
 }
 
 function closeModal() {
-    document.getElementById('issueModal').classList.add('hidden');
+    document.getElementById('issueModal').close();
 }
-
-// Close modal when clicking outside
-function closeModalOnOutsideClick(event) {
-    // Check if the click is on the outer modal div or its immediate flex container child
-    if (event.target.id === 'issueModal' || event.target.classList.contains('fixed')) {
-        closeModal();
-    }
-}
-
-// Close modal on ESC key press
-document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-        const modal = document.getElementById('issueModal');
-        if (!modal.classList.contains('hidden')) {
-            closeModal();
-        }
-    }
-});
 
 // Fetch single issue details
 async function fetchIssueDetails(issueId) {
@@ -251,73 +233,60 @@ async function fetchIssueDetails(issueId) {
         const issue = data.data || data;
         
         const priorityColors = getPriorityColor(issue.priority);
-        const statusColor = issue.status === 'open' ? 'bg-green-100 text-green-800' : 'bg-purple-100 text-purple-800';
+        const statusBadge = issue.status === 'open' 
+            ? '<span class="px-3 py-1 text-xs font-semibold rounded" style="background-color: #10b981; color: white;">OPEN</span>'
+            : '<span class="px-3 py-1 text-xs font-semibold rounded" style="background-color: #a855f7; color: white;">CLOSED</span>';
+        
+        const formattedDate = new Date(issue.createdAt).toLocaleDateString('en-GB').replace(/\//g, '/');
         
         modalContent.innerHTML = `
-            <div class="space-y-6">
+            <div class="space-y-5">
                 <!-- Title -->
-                <div>
-                    <h3 class="text-2xl font-bold text-gray-800 mb-2">${issue.title}</h3>
-                    <div class="flex gap-2 flex-wrap">
-                        <span class="px-3 py-1 text-sm font-semibold rounded ${statusColor}">
-                            ${issue.status?.toUpperCase()}
-                        </span>
-                        <span class="px-3 py-1 text-sm font-semibold rounded" style="background-color: ${priorityColors.bg}; color: ${priorityColors.text};">
-                            ${issue.priority?.toUpperCase() || 'LOW'} PRIORITY
-                        </span>
-                    </div>
-                </div>
+                <h3 class="text-2xl font-bold text-gray-800">${issue.title}</h3>
                 
-                <!-- Description -->
-                <div>
-                    <h4 class="font-semibold text-gray-700 mb-2">Description</h4>
-                    <p class="text-gray-600">${issue.description}</p>
+                <!-- Status and Author Info -->
+                <div class="flex items-center gap-2 text-sm text-gray-600">
+                    ${statusBadge}
+                    <span>• Opened by ${issue.author || 'Unknown'} • ${formattedDate}</span>
                 </div>
                 
                 <!-- Labels -->
                 ${issue.labels && issue.labels.length > 0 ? `
-                <div>
-                    <h4 class="font-semibold text-gray-700 mb-2">Labels</h4>
-                    <div class="flex flex-wrap gap-2">
-                        ${issue.labels.map(label => {
-                            const tagColor = getTagColor(label);
-                            return `<span class="px-3 py-1 text-sm font-medium rounded border" style="background-color: ${tagColor.bg}; color: ${tagColor.text}; border-color: ${tagColor.border};">
-                                <i class="fa-solid ${label.toLowerCase() === 'bug' ? 'fa-bug' : label.toLowerCase() === 'enhancement' ? 'fa-sparkles' : 'fa-hand'}"></i>
-                                ${label.toUpperCase()}
-                            </span>`;
-                        }).join('')}
-                    </div>
+                <div class="flex flex-wrap gap-2">
+                    ${issue.labels.map(label => {
+                        const tagColor = getTagColor(label);
+                        return `<span class="px-3 py-1.5 text-xs font-semibold rounded" style="background-color: ${tagColor.bg}; color: ${tagColor.text}; border: 1px solid ${tagColor.border};">
+                            <i class="fa-solid ${label.toLowerCase() === 'bug' ? 'fa-bug' : label.toLowerCase() === 'enhancement' ? 'fa-lightbulb' : 'fa-hand'}"></i>
+                            ${label.toUpperCase()}
+                        </span>`;
+                    }).join('')}
                 </div>
                 ` : ''}
                 
-                <!-- Details Grid -->
-                <div class="grid grid-cols-2 gap-4">
+                <!-- Description -->
+                <p class="text-gray-700 leading-relaxed">${issue.description}</p>
+                
+                <!-- Assignee and Priority -->
+                <div class="grid grid-cols-2 gap-6 pt-2">
                     <div>
-                        <h4 class="font-semibold text-gray-700 mb-1">Author</h4>
-                        <p class="text-gray-600">${issue.author || 'Unknown'}</p>
+                        <h4 class="text-sm font-semibold text-gray-600 mb-1">Assignee:</h4>
+                        <p class="text-gray-800 font-medium">${issue.assignee || 'Unassigned'}</p>
                     </div>
                     <div>
-                        <h4 class="font-semibold text-gray-700 mb-1">Assignee</h4>
-                        <p class="text-gray-600">${issue.assignee || 'Unassigned'}</p>
+                        <h4 class="text-sm font-semibold text-gray-600 mb-1">Priority:</h4>
+                        <span class="inline-block px-3 py-1 text-sm font-semibold rounded" style="background-color: ${priorityColors.bg}; color: ${priorityColors.text};">
+                            ${issue.priority?.charAt(0).toUpperCase() + issue.priority?.slice(1) || 'Low'}
+                        </span>
                     </div>
-                    <div>
-                        <h4 class="font-semibold text-gray-700 mb-1">Created At</h4>
-                        <p class="text-gray-600">${new Date(issue.createdAt).toLocaleString()}</p>
-                    </div>
-                    <div>
-                        <h4 class="font-semibold text-gray-700 mb-1">Updated At</h4>
-                        <p class="text-gray-600">${new Date(issue.updatedAt).toLocaleString()}</p>
-                    </div>
-                    <div>
-                        <h4 class="font-semibold text-gray-700 mb-1">Issue ID</h4>
-                        <p class="text-gray-600">#${issue.id}</p>
-                    </div>
-                    ${issue.level ? `
-                    <div>
-                        <h4 class="font-semibold text-gray-700 mb-1">Level</h4>
-                        <p class="text-gray-600">${issue.level.toUpperCase()}</p>
-                    </div>
-                    ` : ''}
+                </div>
+                
+                <!-- Close Button -->
+                <div class="modal-action">
+                    <form method="dialog">
+                        <button class="px-6 py-2 text-white font-medium rounded-lg hover:opacity-90 transition-opacity" style="background-color: #7c3aed;">
+                            Close
+                        </button>
+                    </form>
                 </div>
             </div>
         `;
