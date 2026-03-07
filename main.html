@@ -30,16 +30,17 @@
     <link rel="stylesheet" href="styles/style.css" />
   </head>
   <body class="bg-gray-50">
-    <header class="bg-white shadow-sm border-b border-gray-200 px-6">
-      <div class="navbar px-6">
+    <header class="bg-white shadow-sm border-b border-gray-200">
+      <div class="navbar px-4 md:px-6">
         <!-- Left: GitHub Logo and Title -->
-        <div class="flex-1 flex items-center gap-3">
+        <div class="flex-1 flex items-center gap-2 md:gap-3">
           <img src="assets/github-logo.png" alt="GitHub" class="w-8 h-8" />
-          <span class="text-xl font-semibold text-gray-800">GitHub Issues Tracker</span>
+          <span class="text-lg md:text-xl font-semibold text-gray-800 hidden sm:inline">GitHub Issues Tracker</span>
+          <span class="text-lg font-semibold text-gray-800 sm:hidden">GitHub Issues Tracker</span>
         </div>
         
-        <!-- Right: Search and New Issue Button -->
-        <div class="flex-none flex items-center gap-3">
+        <!-- Right: Search and New Issue Button (Desktop) -->
+        <div class="hidden lg:flex flex-none items-center gap-3">
           <div class="relative">
             <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 z-10 pointer-events-none"></i>
             <input
@@ -54,46 +55,72 @@
             New Issue
           </button>
         </div>
+
+        <!-- Mobile Menu Button -->
+        <div class="flex-none lg:hidden">
+          <button id="mobileMenuBtn" class="btn btn-ghost btn-square">
+            <i class="fa-solid fa-bars text-xl"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile Menu -->
+      <div id="mobileMenu" class="hidden lg:hidden bg-white border-t border-gray-200 px-4 py-4">
+        <div class="flex flex-col gap-3">
+          <div class="relative w-full">
+            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 z-10 pointer-events-none"></i>
+            <input
+              type="text"
+              placeholder="Search issues..."
+              class="input input-bordered pl-10 w-full"
+              id="searchIssuesMobile"
+            />
+          </div>
+          <button class="btn text-white w-full" style="background-color: #7c3aed">
+            <i class="fa-solid fa-plus"></i>
+            New Issue
+          </button>
+        </div>
       </div>
     </header>
 
     <!-- Main Content -->
-    <main class="container mx-auto px-6 py-8">
+    <main class="container mx-auto px-4 md:px-6 py-6 md:py-8">
       <!-- Filter Tabs -->
-      <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6 p-6">
-        <div class="flex gap-3">
-          <button id="btnAll" class="px-6 py-2 font-medium text-white rounded-lg" style="background-color: #7c3aed;">
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6 p-4 md:p-6">
+        <div class="flex flex-wrap gap-2 md:gap-3">
+          <button id="btnAll" class="px-4 md:px-6 py-2 font-medium text-white rounded-lg text-sm md:text-base" style="background-color: #7c3aed;">
             All
           </button>
-          <button id="btnOpen" class="px-6 py-2 font-medium text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
+          <button id="btnOpen" class="px-4 md:px-6 py-2 font-medium text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm md:text-base">
             Open
           </button>
-          <button id="btnClosed" class="px-6 py-2 font-medium text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
+          <button id="btnClosed" class="px-4 md:px-6 py-2 font-medium text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm md:text-base">
             Closed
           </button>
         </div>
       </div>
 
       <!-- Issues Summary -->
-      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background-color: #e9d5ff;">
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-6">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div class="flex items-center gap-3 md:gap-4">
+            <div class="w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center" style="background-color: #e9d5ff;">
               <img src="assets/Aperture.png" alt="">
             </div>
             <div>
-              <h2 id="issueCount" class="text-2xl font-bold text-gray-800">0 Issues</h2>
-              <p class="text-gray-500 text-sm">Track and manage your project issues</p>
+              <h2 id="issueCount" class="text-xl md:text-2xl font-bold text-gray-800">0 Issues</h2>
+              <p class="text-gray-500 text-xs md:text-sm">Track and manage your project issues</p>
             </div>
           </div>
           <div class="flex items-center gap-4">
             <div class="flex items-center gap-2">
               <span class="w-3 h-3 rounded-full bg-green-500"></span>
-              <span class="text-sm text-gray-600">Open</span>
+              <span class="text-xs md:text-sm text-gray-600">Open</span>
             </div>
             <div class="flex items-center gap-2">
               <span class="w-3 h-3 rounded-full bg-purple-500"></span>
-              <span class="text-sm text-gray-600">Closed</span>
+              <span class="text-xs md:text-sm text-gray-600">Closed</span>
             </div>
           </div>
         </div>
@@ -107,7 +134,7 @@
       </div>
 
       <!-- Issues Grid -->
-      <div id="issuesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+      <div id="issuesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-6">
         <!-- Issues will be dynamically loaded here -->
       </div>
     </main>

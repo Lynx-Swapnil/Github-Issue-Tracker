@@ -1,3 +1,19 @@
 *{
     font-family: 'Geist', sans-serif;
 }
+
+/* Mobile menu transition */
+#mobileMenu {
+    transition: all 0.3s ease-in-out;
+}
+
+/* Improved responsive scaling */
+@media (max-width: 640px) {
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+}

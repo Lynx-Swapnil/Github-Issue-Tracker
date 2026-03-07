@@ -1,5 +1,35 @@
 console.log('connected');
 
+// Mobile menu toggle
+const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+const mobileMenu = document.getElementById('mobileMenu');
+
+if (mobileMenuBtn && mobileMenu) {
+    mobileMenuBtn.addEventListener('click', () => {
+        mobileMenu.classList.toggle('hidden');
+        const icon = mobileMenuBtn.querySelector('i');
+        if (mobileMenu.classList.contains('hidden')) {
+            icon.classList.remove('fa-xmark');
+            icon.classList.add('fa-bars');
+        } else {
+            icon.classList.remove('fa-bars');
+            icon.classList.add('fa-xmark');
+        }
+    });
+}
+
+// Sync search inputs (desktop and mobile)
+const searchIssuesMobile = document.getElementById('searchIssuesMobile');
+if (searchIssuesMobile) {
+    searchIssuesMobile.addEventListener('input', (e) => {
+        const searchInput = document.getElementById('searchIssues');
+        if (searchInput) {
+            searchInput.value = e.target.value;
+            searchInput.dispatchEvent(new Event('input'));
+        }
+    });
+}
+
 // Filter button functionality
 const btnAll = document.getElementById('btnAll');
 const btnOpen = document.getElementById('btnOpen');
